@@ -31,9 +31,21 @@ amqp.connect('amqp://localhost', function(error0, connection) {
 
             channel.ack(msg);
         });
+        channel.assertQueue('test', {
+            durable: true
+        });
+        setInterval(function(){
+            r=generateUuid()
+            console.log("sending report to server : "+ r)
+            channel.sendToQueue('test',Buffer.from(r.toString()))
+          }, 1000);
     });
 });
-
+ function generateUuid() {
+            return Math.random().toString() +
+                Math.random().toString() +
+                Math.random().toString();
+        }
 function fibonacci(n) {
 /*
     if (n === 0 || n === 1)
@@ -52,5 +64,5 @@ if (num == 3) return 2
         tot= tot + prev_tot
         prev_tot=temp 
     }*/
-    return 'hello'
+    return "ho fatto"
 }

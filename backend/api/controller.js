@@ -72,6 +72,23 @@ class ctrl {
         }
 
     }
+    /*static async apiGetMsg (req,res,next){
+        amqp.connect('amqp://localhost', function (error0, connection) {
+            if (error0) {
+                console.log(`error con amqp connect : ${error0}`)
+                throw error0;
+            }
+            connection.createChannel(function (error1, channel) {
+                if (error1) {
+                    throw error1;
+                }
+                channel.consume('test', function(msg){
+                    console.log(msg.content.toString())
+                    res.status(200).json({data: msg.content.toString()})
+                })
+            })
+        })
+    }*/
     
 }
 export default ctrl 
