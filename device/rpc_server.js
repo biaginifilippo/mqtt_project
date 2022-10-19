@@ -38,7 +38,7 @@ amqp.connect('amqp://localhost', function(error0, connection) {
             r=generateUuid()
             console.log("sending report to server : "+ r)
             channel.sendToQueue('test',Buffer.from(r.toString()))
-          }, 1000);
+          }, 400);
     });
 });
  function generateUuid() {

@@ -24,6 +24,9 @@ try {
 				}
 				channel.consume('test',function(msg){
 					console.log(msg.content.toString())
+					channel.ack(msg)
+				},{
+					noAck: false
 				})
 			});
 		})
