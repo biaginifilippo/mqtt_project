@@ -145,17 +145,18 @@ function App() {
       <div className='row'>
         <div className='col'></div>
       <div className='col' align = 'center'>
-          <b>ID Device: {livelli.id} </b><br /><br />
+      <b>ID Device: {actualConfig.id}</b><br /> <br />
+          <b>Cloro</b>: {actualConfig.cloro_H}<br />
+          <b>Minimum Temperature</b>: {actualConfig.tempMin}<br />
+          <b>Maximum Temperature</b>: {actualConfig.tempMax}<br />
+        </div>
+        <div className='col' align = 'center'>
+        <b>ID Device: {livelli.id} </b><br /><br />
           <b>Level</b>: {livelli.level} <br />
           <b>PH</b>: {livelli.ph} <br />
           <b>Temperature</b>: {livelli.temperature}°C<br />
           <b>Time</b>: {livelli.time}
-        </div>
-        <div className='col' align = 'center'>
-        <b>ID Device: {actualConfig.id}</b><br /> <br />
-          <b>Cloro</b>: {actualConfig.cloro_H}<br />
-          <b>Minimum Temperature</b>: {actualConfig.tempMin}<br />
-          <b>Maximum Temperature</b>: {actualConfig.tempMax}<br />
+        
         </div>
         <div className='col'></div>
       </div>
