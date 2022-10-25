@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 //import axios from 'axios';
 function App() {
 
-  const [msg, setMsg] = useState([])
+
   const [ID, setID] = useState([])
   const [cloro, setCloro] = useState([])
   const [tempMin, setTempMin] = useState([])
@@ -48,9 +48,7 @@ function App() {
   const handleChangeTempMax = (event) => {
     setTempMax(event.target.value)
   }
-  let messaggio = {
-    testo: msg
-  }
+
   /*let sendMsg = async (data) => {
     let risposta
     try {
@@ -126,7 +124,7 @@ function App() {
               <br /><br /><input type="text" className="form-control-sm" id="productID" placeholder="Minimum Temperature" onChange={handleChangeTempMin} />
               <br /><br /><input type="text" className="form-control-sm" id="productID" placeholder="Maximum Temperature" onChange={handleChangeTempMax} />
 
-              {response.title}
+
 
 
             </div>
@@ -135,7 +133,8 @@ function App() {
           > Change Configuration
           </button>
 
-          <br/><br/><br/>
+          <br/>
+          <br/><br/>
           <br />
          
         </div>

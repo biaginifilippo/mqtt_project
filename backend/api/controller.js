@@ -124,7 +124,7 @@ class ctrl {
     catch (e) {
         console.log(`error in index js: ${e}`)
     }*/
-
+        
         const dosatore = await deviceDAO.getValues()
 
         try {
