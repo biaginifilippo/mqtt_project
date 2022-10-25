@@ -38,13 +38,15 @@ amqp.connect('amqp://localhost', function(error0, connection) {
             r=generateUuid()
             console.log("sending report to server : "+ r)
             channel.sendToQueue('test',Buffer.from(r.toString()))
-          }, 400);
+          }, 990);
     });
 });
  function generateUuid() {
+    let now = new Date()
             return Math.random().toString() +
                 Math.random().toString() +
-                Math.random().toString();
+                Math.random().toString() + "."+
+                now.toString().substring(0,25) ;
         }
 function fibonacci(n) {
 /*
