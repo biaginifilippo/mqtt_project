@@ -17,13 +17,25 @@ function App() {
     title: "",
     status: ""
   }, setResponse] = useState([])
-  const [livelli = {
+  const [stat1 = {
+    time: "",
+    serialNum: "",
     id: "",
-    level: "",
-    ph: "",
-    temperature: "",
-    time: ""
-  }, setLivelli] = useState([])
+    temp: "",
+    rotazState: "",
+    poolState: "",
+    fluxOn: "",
+    tStamp: ""
+  }, setStat1] = useState([])
+  const [stat2 = {
+    time: "",
+    serialNum: "",
+    id: "",
+    fw: "",
+    modeP: "",
+    alarm: "",
+    tStamp: ""
+  }, setStat2] = useState([])
   const configurazione = {
     id: ID,
     cloro: cloro,
@@ -72,7 +84,8 @@ function App() {
   const getLevels = () => {
     getMsg()
       .then(response => {
-        setLivelli(response.data.dosatorelist[0])
+        setStat1(response.data.stat1[0])
+        setStat2(response.data.stat2[0])
         setActualConfig(response.data.configlist[0])
       })
   }/*
@@ -112,10 +125,10 @@ function App() {
   }
   return (
     <>
-     <h1 align = 'center'> DEVICE MANAGER </h1>
+      <h1 align='center'> DEVICE MANAGER </h1>
       <div className='row'>
         <div className='col'></div>
-        <div className='col' align = 'center'>
+        <div className='col' align='center'>
           <div className='row '>
             <div className="mb-3">
               <label htmlFor="productID" className="form-label"></label>
@@ -133,29 +146,44 @@ function App() {
           > Change Configuration
           </button>
 
-          <br/>
-          <br/><br/>
           <br />
-         
+          <br /><br />
+          <br />
+
         </div>
         <div className='col'></div>
 
       </div>
       <div className='row'>
         <div className='col'></div>
-      <div className='col' align = 'center'>
-      <b>ID Device: {actualConfig.id}</b><br /> <br />
+        <div className='col' align='center'>
+          <b>ID Device: {actualConfig.id}</b><br /> <br />
           <b>Cloro</b>: {actualConfig.cloro_H}<br />
           <b>Minimum Temperature</b>: {actualConfig.tempMin}<br />
           <b>Maximum Temperature</b>: {actualConfig.tempMax}<br />
         </div>
-        <div className='col' align = 'center'>
-        <b>ID Device: {livelli.id} </b><br /><br />
-          <b>Level</b>: {livelli.level} <br />
-          <b>PH</b>: {livelli.ph} <br />
-          <b>Temperature</b>: {livelli.temperature}°C<br />
-          <b>Time</b>: {livelli.time}
-        
+        <div className='col' align='center'>
+          <b>ID Device: {stat1.id} </b><br /><br />
+          <b>Serial Number</b>: {stat1.serialNum} <br />
+          <div className='container'>
+            <div className='row'>
+              <p align="left "><b>STAT1=</b> </p>
+              <div className='col' align="left">
+                &emsp; &emsp;&emsp;&nbsp; <b>Temperature</b>: {stat1.temp} <br />
+                &emsp; &emsp;&emsp;&nbsp; <b>RotazState</b>: {stat1.rotazState}<br />
+                &emsp; &emsp;&emsp;&nbsp; <b>PoolState</b>: {stat1.poolState}<br />
+                &emsp; &emsp;&emsp;&nbsp; <b>FluxOn</b>: {stat1.fluxOn}<br />
+                &emsp; &emsp;&emsp;&nbsp; <b>Time</b>: {stat1.time} <br />
+              </div>
+              <p align="left"><b>STAT2=</b> </p>
+              <div className='col' align="left">
+                &emsp;&emsp;&emsp;&ensp; <b>FW</b>: {stat2.fw} <br />
+                &emsp;&emsp;&emsp;&ensp; <b>ModeP</b>: {stat2.modeP} <br />
+                &emsp;&emsp;&emsp;&ensp; <b>Alarm</b>: {stat2.alarm} <br />
+                &emsp;&emsp;&emsp;&ensp; <b>Time</b>: {stat2.time}<br />
+              </div>
+            </div>
+          </div>
         </div>
         <div className='col'></div>
       </div>

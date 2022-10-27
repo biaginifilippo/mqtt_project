@@ -130,7 +130,8 @@ class ctrl {
         try {
 
             let response = {
-                dosatorelist: dosatore.dos,
+                stat1: dosatore.stats1,
+                stat2: dosatore.stats2,
                 configlist:dosatore.con
             }
 
