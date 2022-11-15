@@ -4,8 +4,8 @@ import mongodb from 'mongodb'
 import deviceDAO from './dao/deviceDAO.js';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-const mqtt=require('mqtt')
-var amqp = require('amqplib/callback_api');
+const mqtt = require('mqtt')
+
 dotenv.config()
 const MongoClient = mongodb.MongoClient
 const port = process.env.PORT || 8000
@@ -14,81 +14,89 @@ MongoClient.connect(
 	process.env.DB_URI,
 	{
 		maxPoolSize: 50,
-        wtimeoutMS: 250,
-        useNewUrlParser: true
+		wtimeoutMS: 250,
+		useNewUrlParser: true
 	}
-).catch( e=>{
+).catch(e => {
 	console.log(e.stack)
 	process.exit(1)
 })
-.then( async client =>{ 
-	await deviceDAO.injectDB(client)
-	app.listen(port, () => {
-		console.log(`listening on port ${port}`)
+	.then(async client => {
+		await deviceDAO.injectDB(client)
+		app.listen(port, () => {
+			console.log(`listening on port ${port}`)
+		})
 	})
-})
 try {
-	const client  = mqtt.connect('mqtt://3.251.2.49')
+	const client = mqtt.connect('mqtt://3.251.2.49')
 
-client.on('connect', function () {
-  client.subscribe('IW/1C9DC265F51C-57428990/tx', function (err) {
-    if (!err) {
-		client.on('message', function (topic, message) {
-			// message is Buffer
-			deviceDAO.updateDB(message.toString())
-
-		  })
-    }
-  })
-
-})
-
-
-	/*const client =mqtt.connect(`mqtt://3.251.2.49`)
-	console.log("creato client")
-	console.log(client)
-	client.on('connection', function(){
-		console.log("client connesso")
-		client.subscribe('test', function(){
-			client.publish('test',"dal pc")
-			console.log("spedito il messaggio al topic")
-		})
-		console.log("client ha fatto subscribe")
-	})
-	client.on('message',function (topic,message){
-		console.log("client ha ricevuto un messaggio")
-		console.log(message.toString())
-	})
-	*/
-	/* 
-	amqp.connect(`amqp://3.251.2.49:5672`, function (error0, connection) {
-		if (error0) {
-			console.log(`error con amqp connect : ${error0}`)
-			throw error0;
-		}
-		connection.createChannel(function (error1, channel) {
-			if (error1) {
-				throw error1;
-			}
-			channel.assertQueue('test', {
-				exclusive: false
-			}, function (error2, q) {
-				if (error2) {
-					throw error2;
-				}
-				channel.consume('IW/1C9DC265F51C-57428990/tx',function(msg){
-					/*CHIAMATA ALLA API CHE AGGIORNA I DATI NEL DB *//*
-					deviceDAO.updateDB(msg.content.toString())
-					channel.ack(msg)
-				},{
-					noAck: false
+	client.on('connect', function () {
+		client.subscribe('IW/4417936C9DB4-53163597/tx', function (err) {
+			if (!err) {
+				client.on('message', function (topic, message) {
+					// message is Buffer
+					deviceDAO.updateDB(message.toString())
 				})
-				console.log("scrivo sul topic test")
-				channel.sendToQueue('test',Buffer.from("scrivo"))
-			});
+			}
 		})
 
-	})*/
+	})
+
+
 } catch (e) {
 	console.log(`error in index js: ${e}`)
 }
+function updateConf(data) {
+	let risposta
+	//esempio comando per ESP\n     
+	//intestazione base                 famiglia=lista comandi
+	//altirmenti non viene             sotto forma di chiave:valore
+	//interpretato il messaggio
+	//#TIME:0;POOL:857428990;ID:1234;CFGPUMP=STANDBY:1
+	console.log("sono entrato nell'update conf")
+	let msg = `#TIME:0;POOL:${data.id};ID:1234;CFGPUMP=${data.field}:${data.value};`
+	console.log(msg)
+	try {
+		const client = mqtt.connect('mqtt://3.251.2.49')
+		console.log("connesso")
+		client.on('connect', function () {
+			client.publish('IW/CC50E3BEB620-68380210/rx', msg, function (err) {
+				if (!err) {
+					console.log("callback di messaggio spedito")
+					client.subscribe('IW/CC50E3BEB620-68380210/tx', function (err) {
+						if (!err) {
+							client.on('message', function (topic, message) {
+								console.log(message.toString())
+								// message is Buffer
+								risposta = message.toString()
+								console.log("ritorno risposta 1")
+									return risposta
+							})
+							console.log("ritorno risposta 2")
+								return risposta
+						}
+						console.log("ritorno risposta 3")
+						return risposta
+					})
+					console.log("ritorno risposta 4")
+					return risposta
+				}
+				console.log("ritorno risposta 5")
+				return risposta
+			})
+			console.log("ritorno risposta 6")
+			return risposta
+		})
+		console.log("ritorno risposta 7")
+		return msg
+	}
+
+
+
+
+	catch (e) {
+		console.log(`error in index js: ${e}`)
+	}
+	return risposta
+
+} export default updateConf
