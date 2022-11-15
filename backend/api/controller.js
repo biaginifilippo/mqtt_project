@@ -77,14 +77,15 @@ class ctrl {
     static async apiUpdateConfiguration(req, res, next) {
 
         let config = {
+            fam: req.body.fam,
             id: req.body.id,
-            cloro: req.body.cloro,
-            tempMin: req.body.tempMin,
-            tempMax: req.body.tempMax
+            field : req.body.field,
+            value: req.body.value
         }
         console.log(config)
         try {
             let esito = await deviceDAO.updateConfiguration(config)
+            console.log(esito )
             res.status(200).json({title:"success"})
         } catch (e) {
             res.status(400).json({title:`${e}`})
