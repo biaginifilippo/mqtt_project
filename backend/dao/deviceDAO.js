@@ -1,3 +1,4 @@
+import updateConf from "../index.js"
 let dosatori
 let configurazioni
 let stat1
@@ -12,7 +13,7 @@ export default class deviceDAO {
         }
         if (configurazioni) return
         try {
-            configurazioni = await conn.db(process.env.DB_NAME).collection("Configurazione");
+            configurazioni = await conn.db(process.env.DB_NAME).collection("IWPOOL");
         } catch (e) {
             console.error(`unable to set collection handle with  db: ${e}`)
         }
@@ -30,18 +31,54 @@ export default class deviceDAO {
         }
     }
     static async updateDB(msg) {
+        //inserire funzionalità che se non trova l'id della pompa 
+        //da aggiornare la inserisce automaticamente nel database 
         console.log(msg)
-        if (msg[0] == "#") {
+        msg= msg.substring(1,Buffer.byteLength(msg)-4)
+        if (1) {
+
+            let splice = msg.split("=")
+            let stringa = "{"
+            let contatore = 0
+            
+            var keyvals, keyval
+            splice.forEach(element => {
+                keyvals = element.split(";")
+                
+                keyvals.forEach(elements => {
+                    keyval = elements.split(":")
+                    
+                    if (keyval[1] != null) {
+                        stringa += '"' + keyval[0] + '"' + ":" + '"' + keyval[1] +'"' + ","
+                    }
+                    else {
+                        stringa += '"' + keyval[0] + '"' + ":" + "{"
+                        contatore++
+                    }
+                })
+            });
+            for (let i = 0; i <= contatore; i++) stringa += "}"
+            stringa = stringa.replace(/,}/g, "}")
+            stringa = JSON.parse(stringa)
+            console.log(stringa)
+            //in stringa ho un oggetto json che posso iniettare direttamente sul database
+        }
+       
+        if (0) {
+
             let division = msg.split("=")
             let params = division[0].split(";")
             let params2 = division[1].split(";")
             let temp = params[0].substring(6, 16)
             let temp2 = parseInt(temp)
-            temp2 = temp2 + 95358826 - 1640995201 //sottraggo il numero di secondi trascorsi dal 1/01/1970 al 1/01/2022 
+            let tstamp = parseInt(params2[4].substring(7, Buffer.byteLength(params2[4])))
+            tstamp = tstamp + 95358826 - 1640995201 - 3600 //(3600 correzione ora sorale)  
+            temp2 = temp2 + 95358826 - 1640995201 - 3600 //(3600 correzione ora sorale) //sottraggo il numero di secondi trascorsi dal 1/01/1970 al 1/01/2022 
             //perché il computer approssima male le operazioni di floor e %
             //le pompe mandano il tempo sottoforma di secondi passati al 1/01/1970
             //ma sbagliano il conteggio, questa è la correzione per far risultare corretta l'ora
             temp = calcolaData(temp2)
+            tstamp = calcolaData(tstamp)
             if ((division[0][Buffer.byteLength(division[0]) - 1]) == '1') {
                 try {
                     stat1.updateOne(
@@ -70,7 +107,7 @@ export default class deviceDAO {
                     )
                     stat1.updateOne(
                         { id: params[1] },
-                        { $set: { tStamp: params2[4].substring(7, Buffer.byteLength(params2[4])) } },
+                        { $set: { tStamp: tstamp } },
                     )
                 }
                 catch (e) {
@@ -78,6 +115,9 @@ export default class deviceDAO {
                 }
             }
             if ((division[0][Buffer.byteLength(division[0]) - 1]) == '2') {
+                let tstamp = parseInt(params2[3].substring(7, Buffer.byteLength(params2[3])))
+                tstamp = tstamp + 95358826 - 1640995201 - 3600
+                tstamp = calcolaData(tstamp)
                 try {
                     stat2.updateOne(
                         { id: params[1] },
@@ -101,7 +141,7 @@ export default class deviceDAO {
                     )
                     stat2.updateOne(
                         { id: params[1] },
-                        { $set: { tStamp: params2[3].substring(7, Buffer.byteLength(params2[3])) } }
+                        { $set: { tStamp: tstamp } }
                     )
                 }
                 catch (e) {
@@ -112,29 +152,30 @@ export default class deviceDAO {
 
     }
     static async updateConfiguration(config) {
-        //esempio comando per ESP\n     famiglia=lista comandi
-        //intestazione base             sotto forma di chiave:valore
-        //altirmenti non viene 
-        //interpretato il messaggio
-        //#TIME:0;POOL:857428990;ID:1234;CFGPUMP=STANDBY:1
-        try {
-            configurazioni.updateOne(
-                { id: config.id },
-                { $set: { cloro_H: config.cloro } }
-            )
-            configurazioni.updateOne(
-                { id: config.id },
-                { $set: { tempMin: config.tempMin } }
-            )
-            configurazioni.updateOne(
-                { id: config.id },
-                { $set: { tempMax: config.tempMax } }
-            )
-        }
-        catch (e) {
-            console.log(`unable to update configuration: ${e}`)
-            return e
-        }
+        let msg
+        msg = await updateConf(config)
+        console.log("DAO riceve messaggio : ")
+        console.log(await msg)
+
+        //CODICE PER UPDATE DB 
+        //    try {
+        //        configurazioni.updateOne(
+        //            { id: config.id },
+        //            { $set: { cloro_H: config.cloro } }
+        //        )
+        //        configurazioni.updateOne(
+        //            { id: config.id },
+        //            { $set: { tempMin: config.tempMin } }
+        //        )
+        //        configurazioni.updateOne(
+        //            { id: config.id },
+        //            { $set: { tempMax: config.tempMax } }
+        //        )
+        //    }
+        //    catch (e) {
+        //        console.log(`unable to update configuration: ${e}`)
+        //        return e
+        //    }
         if ((division[0][Buffer.byteLength(division[0]) - 1]) == '2') {
             console.log("kek")
         }
@@ -165,8 +206,10 @@ export default class deviceDAO {
             stats1: statss1,
             stats2: statss2,
             con: configurazionee
+
         })
     }
+
 }
 function calcolaData(temp2) {
     let meseAct = 0, anni, giorni, giorniAct, ora, oraAct, min, minAct, sec
